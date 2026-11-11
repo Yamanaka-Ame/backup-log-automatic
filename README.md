@@ -190,6 +190,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\Run-Tests.ps1
 在临时目录里造一块假盘，跑完整流程：新建 / 修改 / 删除 / 改名 / 移动 / 归档 / 图片合并 /
 幂等性 / 格式（CRLF、无 BOM、块间空行）/ 阈值保护。当前 31 项全过，不接触真实数据。
 
+## 更新日志
+
+见 [CHANGELOG.md](CHANGELOG.md)。
+
 ## License
 
 MIT
