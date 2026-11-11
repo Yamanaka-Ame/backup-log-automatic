@@ -1,8 +1,4 @@
 {
-    "requiredMarkers":  [
-                            "Backup_Log.log"
-                        ],
-    "logFile":  "Backup_Log.log",
     "stateDir":  ".backup-log",
     "excludeTop":  [
                        "$RECYCLE.BIN",
@@ -18,5 +14,9 @@
     "detectArchive":  true,
     "aggregateImages":  10,
     "autoScan":  true,
-    "scanIntervalMinutes":  15
+    "scanIntervalMinutes":  15,
+    "requiredMarkers":  [
+                            "Backup_Log.log"
+                        ],
+    "logFile":  "Backup_Log.log"
 }

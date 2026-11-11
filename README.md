@@ -40,6 +40,16 @@
 
 需要 Windows 10/11 自带的 PowerShell 5.1，不需要装任何东西。
 
+### 第一次用：双击 `setup.cmd`
+
+1. 下载仓库（Code → Download ZIP），解压到任意目录（别放在需要管理员权限的位置）
+2. 双击根目录的 **`setup.cmd`**
+3. 按提示选盘 —— 它会自动创建日志文件（如果还没有）、写入配置、建立基线，并可选安装计划任务和快捷方式
+
+向导会自动解除从 ZIP 解压出来的脚本「来自网络」锁定，不用手动 Unblock。
+
+### 或者手动跑命令
+
 ```powershell
 # 1. 看看认没认出备份盘（只读，不写任何东西）
 powershell -NoProfile -ExecutionPolicy Bypass -File .\backup-log.ps1 -Action detect
@@ -159,6 +169,8 @@ config.json                配置
 gui\BackupLog.Gui.ps1      WPF 界面
 gui\install.ps1            快捷方式 / 开机自启
 gui\build-exe.ps1          可选：编译单文件 exe（系统自带 csc，无需 SDK）
+tools\Setup.ps1           首次使用向导（选盘 / 建日志 / 建基线 / 装任务）
+setup.cmd                 双击入口，调用上面的向导
 tools\Install-Schedule.ps1 计划任务安装 / 卸载 / 查看
 tests\Run-Tests.ps1        假盘上的 31 项自动化测试
 docs\screenshot.png        界面截图
