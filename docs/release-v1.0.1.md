@@ -40,3 +40,11 @@
 ---
 
 **完整变更**：https://github.com/Yamanaka-Ame/backup-log-automatic/compare/v1.0.0...v1.0.1
+
+区间内 3 个提交：
+
+- `d9aa89f` 首次使用向导 setup.cmd（选盘 / 建日志 / 建基线 / 装任务）
+- `85a5225` GitHub Actions 测试工作流、README 徽章与三步开始
+- `f0f6996` CHANGELOG 与本次更新说明
+
+逐版本明细见 [CHANGELOG.md](../CHANGELOG.md)。
