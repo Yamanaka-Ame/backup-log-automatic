@@ -11,6 +11,10 @@
 你照常往盘里拖文件、改名、删除，它定时扫描、比对快照，把变化按固定格式追加到盘根的
 `Backup_Log.log` 里。**换电脑、换盘符都不用改配置**——靠盘根的特征文件识别，不写死 `G:`。
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![PowerShell](https://img.shields.io/badge/PowerShell-5.1-5391FE?logo=powershell&logoColor=white)](#)
+[![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-0078D6?logo=windows&logoColor=white)](#)
+[![tests](https://github.com/Yamanaka-Ame/backup-log-automatic/actions/workflows/test.yml/badge.svg)](https://github.com/Yamanaka-Ame/backup-log-automatic/actions/workflows/test.yml)
 ![界面截图](docs/screenshot.png)
 
 ---
@@ -40,13 +44,14 @@
 
 需要 Windows 10/11 自带的 PowerShell 5.1，不需要装任何东西。
 
-### 第一次用：双击 `setup.cmd`
+### 三步开始
 
-1. 下载仓库（Code → Download ZIP），解压到任意目录（别放在需要管理员权限的位置）
-2. 双击根目录的 **`setup.cmd`**
-3. 按提示选盘 —— 它会自动创建日志文件（如果还没有）、写入配置、建立基线，并可选安装计划任务和快捷方式
+| ① | ② | ③ |
+|:--:|:--:|:--:|
+| **下载 ZIP**<br>Code → Download ZIP | **解压到任意目录**<br>别放需要管理员权限的位置 | **双击 `setup.cmd`**<br>按提示选盘 |
 
-向导会自动解除从 ZIP 解压出来的脚本「来自网络」锁定，不用手动 Unblock。
+向导会自动解除脚本的「来自网络」锁定，没有日志就创建一个，然后写配置、建基线，
+并询问是否安装计划任务和桌面快捷方式。
 
 ### 或者手动跑命令
 

@@ -1,0 +1,38 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: 假盘自动化测试
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 环境信息
+        shell: powershell
+        run: |
+          $PSVersionTable | Format-List
+          "PowerShell 版本：$($PSVersionTable.PSVersion)"
+
+      - name: 运行测试
+        shell: powershell
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\Run-Tests.ps1
+
+      - name: 上传测试日志（失败时）
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-output
+          path: |
+            tests/
+            gui.log
+          if-no-files-found: ignore
+          retention-days: 7
