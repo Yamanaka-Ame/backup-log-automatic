@@ -1,0 +1,22 @@
+{
+    "requiredMarkers":  [
+                            "Backup_Log.log"
+                        ],
+    "logFile":  "Backup_Log.log",
+    "stateDir":  ".backup-log",
+    "excludeTop":  [
+                       "$RECYCLE.BIN",
+                       "System Volume Information",
+                       ".backup-log"
+                   ],
+    "excludeExact":  [
+                         "Backup_Log.log",
+                         "Backup_log_README.txt"
+                     ],
+    "pathStyle":  "relative",
+    "maxChangePercent":  40,
+    "detectArchive":  true,
+    "aggregateImages":  10,
+    "autoScan":  true,
+    "scanIntervalMinutes":  15
+}

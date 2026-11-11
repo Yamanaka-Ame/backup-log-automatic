@@ -1,0 +1,15 @@
+# 运行产物
+gui.log
+*.tmp
+*.log
+
+# 状态与测试临时目录
+.state/
+.backup-log/
+tests/sandbox/
+tests/guard/
+tests/agg/
+tests/*.config.json
+
+# 编译产物（用 gui/build-exe.ps1 可重新生成）
+BackupLog.exe
