@@ -2,6 +2,18 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [v1.0.3] - 2026-11-14
+
+### 修复
+
+- **只有一条变更时，预览表格会报错**：
+  `设置"ItemsSource"时发生异常…无法将"PSCustomObject"…转换为"IEnumerable"`。
+  PowerShell 函数返回集合时会逐元素输出，列表里只有 1 个元素时会被解包成单个对象，
+  赋给 `DataGrid.ItemsSource` 就不满足 `IEnumerable`。现在返回值与赋值两处都做了防护。
+
+### 升级说明
+
+不需要重装计划任务，**关掉界面重新打开**即可生效。
 ## [v1.0.2] - 2026-11-14
 
 修掉「每 15 分钟闪一个黑框」，并让界面上的停用开关真正停掉计划任务。
@@ -76,3 +88,4 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\Install-Schedule.ps1
 [v1.0.1]: https://github.com/Yamanaka-Ame/backup-log-automatic/releases/tag/v1.0.1
 [v1.0.0]: https://github.com/Yamanaka-Ame/backup-log-automatic/releases/tag/v1.0.0
 [v1.0.2]: https://github.com/Yamanaka-Ame/backup-log-automatic/compare/v1.0.1...v1.0.2
+[v1.0.3]: https://github.com/Yamanaka-Ame/backup-log-automatic/compare/v1.0.2...v1.0.3
