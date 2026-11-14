@@ -2,6 +2,23 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [v1.0.4] - 2026-11-14
+
+### 修复
+
+- **补完 v1.0.3 的表格绑定修复**：v1.0.3 只做对了一半，点击「立即扫描并写入」仍会报
+  `执行失败：参数类型不匹配`。
+  原因是赋值时多加的 `@($rows)` —— PowerShell 对 `List[object]`（元素为 `PSObject`）做数组
+  子表达式会抛 `ArgumentException: Argument types do not match`。改为直接把列表赋给
+  `ItemsSource` 即可。
+
+### 说明
+
+v1.0.3 的界面修复不完整，**建议直接使用 v1.0.4，跳过 v1.0.3**。
+
+### 升级说明
+
+不需要重装计划任务，关掉界面重新打开即可。
 ## [v1.0.3] - 2026-11-14
 
 ### 修复
@@ -89,3 +106,4 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\Install-Schedule.ps1
 [v1.0.0]: https://github.com/Yamanaka-Ame/backup-log-automatic/releases/tag/v1.0.0
 [v1.0.2]: https://github.com/Yamanaka-Ame/backup-log-automatic/compare/v1.0.1...v1.0.2
 [v1.0.3]: https://github.com/Yamanaka-Ame/backup-log-automatic/compare/v1.0.2...v1.0.3
+[v1.0.4]: https://github.com/Yamanaka-Ame/backup-log-automatic/compare/v1.0.3...v1.0.4

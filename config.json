@@ -12,7 +12,7 @@
     "pathStyle":  "relative",
     "maxChangePercent":  40,
     "detectArchive":  true,
-    "aggregateImages":  10,
+    "aggregateImages":  5,
     "autoScan":  true,
     "scanIntervalMinutes":  15,
     "requiredMarkers":  [
