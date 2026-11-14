@@ -190,7 +190,9 @@ function ConvertTo-ChangeRows {
             $rows.Add([pscustomobject]@{ Action = '其它'; Detail = $line })
         }
     }
-    return $rows
+    # 前面加逗号：避免 PowerShell 在只有一个元素时把 List 解包成单个对象，
+    # 那样赋给 DataGrid.ItemsSource 会报「无法转换为 IEnumerable」。
+    return , $rows
 }
 
 # ---------------------------------------------------------------- 自检模式
@@ -540,7 +542,7 @@ function Do-Scan {
         $r = @($r)[0]
 
         $rows = ConvertTo-ChangeRows -Lines $r.Lines
-        $ui.ChangeGrid.ItemsSource = $rows
+        $ui.ChangeGrid.ItemsSource = @($rows)
 
         if ($Dry) {
             $ui.PreviewSummary.Text = $r.Message
@@ -581,7 +583,7 @@ $ui.CommitBtn.Add_Click({
             $ui.StatusText.Text = $r.Message
             if ($r.Written) { Show-Balloon '备份日志已更新' ('已追加 ' + @($r.Lines).Count + ' 条记录') }
             $rows = ConvertTo-ChangeRows -Lines $r.Lines
-            $ui.ChangeGrid.ItemsSource = $rows
+            $ui.ChangeGrid.ItemsSource = @($rows)
             $ui.PreviewSummary.Text = $r.Message
             Refresh-LogTail
             Update-Status
