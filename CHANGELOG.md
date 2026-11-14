@@ -2,22 +2,31 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [Unreleased]
+## [v1.0.2] - 2026-11-14
+
+修掉「每 15 分钟闪一个黑框」，并让界面上的停用开关真正停掉计划任务。
 
 ### 修复
 
 - **自动扫描不再弹 PowerShell 窗口**：计划任务改为 `wscript.exe //B tools\RunScan.vbs`，
   由 VBS 以隐藏窗口启动 PowerShell，全程无控制台闪烁
+- 任务 XML 里没有 `<Enabled>` 节点时表示「启用」，之前误判为「已停用」，界面一打开就显示停用状态
 
 ### 新增
 
 - 界面的「停用自动扫描」现在会**真正禁用计划任务**（`schtasks /Change /DISABLE`），
-  不再只是写 `paused` 标记；按钮会在「启用 / 停用」之间切换
+  不再只写 `paused` 标记——任务不再唤醒，零开销；按钮在「启用 / 停用」之间切换
 - `tools\Install-Schedule.ps1` 支持 `-Action enable` / `disable` / `status`
 
-### 修复（细节）
+### 升级说明
 
-- 任务 XML 里没有 `<Enabled>` 节点时表示启用，之前误判为已停用
+已有的计划任务还指向旧的 `powershell.exe` 启动方式，**需要重装一次**才能变静默：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\Install-Schedule.ps1 -IntervalMinutes 15
+```
+
+（在图形界面「设置」页点一次保存，也会重新注册任务。）
 ## [v1.0.1] - 2026-11-11
 
 让「陌生人下载下来就能用」成立的一次更新。核心逻辑没有改动，只是把第一次使用的门槛拆掉了。
@@ -66,3 +75,4 @@
 
 [v1.0.1]: https://github.com/Yamanaka-Ame/backup-log-automatic/releases/tag/v1.0.1
 [v1.0.0]: https://github.com/Yamanaka-Ame/backup-log-automatic/releases/tag/v1.0.0
+[v1.0.2]: https://github.com/Yamanaka-Ame/backup-log-automatic/compare/v1.0.1...v1.0.2
