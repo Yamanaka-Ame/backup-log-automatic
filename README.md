@@ -178,6 +178,7 @@ tools\Setup.ps1           首次使用向导（选盘 / 建日志 / 建基线 / 
 setup.cmd                 双击入口，调用上面的向导
 tools\Install-Schedule.ps1 计划任务安装 / 卸载 / 查看
 tests\Run-Tests.ps1        假盘上的 31 项自动化测试
+tools\Normalize-Log.ps1   把历史日志条目统一成本工具的输出格式（只改写法，不动时间块）
 docs\screenshot.png        界面截图
 ```
 
