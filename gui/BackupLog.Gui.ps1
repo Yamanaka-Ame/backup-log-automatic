@@ -542,7 +542,7 @@ function Do-Scan {
         $r = @($r)[0]
 
         $rows = ConvertTo-ChangeRows -Lines $r.Lines
-        $ui.ChangeGrid.ItemsSource = @($rows)
+        $ui.ChangeGrid.ItemsSource = $rows
 
         if ($Dry) {
             $ui.PreviewSummary.Text = $r.Message
@@ -561,8 +561,11 @@ function Do-Scan {
         }
     }
     catch {
-        $ui.StatusText.Text = '失败：' + $_.Exception.Message
-        $ui.ResultBox.Text = '执行失败：' + $_.Exception.Message
+        $ex = $_.Exception
+        $detail = ('{0} | {1} | {2} | POS: {3}' -f $ex.GetType().FullName, $ex.Message, ($_.ScriptStackTrace -replace "`r?`n", ' / '), ($_.InvocationInfo.PositionMessage -replace "`r?`n", ' '))
+        Write-GuiLog ('Do-Scan 失败：' + $detail)
+        $ui.StatusText.Text = '失败：' + $ex.Message
+        $ui.ResultBox.Text = '执行失败：' + $ex.Message
     }
     finally {
         Set-Busy $false $ui.StatusText.Text
@@ -583,7 +586,7 @@ $ui.CommitBtn.Add_Click({
             $ui.StatusText.Text = $r.Message
             if ($r.Written) { Show-Balloon '备份日志已更新' ('已追加 ' + @($r.Lines).Count + ' 条记录') }
             $rows = ConvertTo-ChangeRows -Lines $r.Lines
-            $ui.ChangeGrid.ItemsSource = @($rows)
+            $ui.ChangeGrid.ItemsSource = $rows
             $ui.PreviewSummary.Text = $r.Message
             Refresh-LogTail
             Update-Status
