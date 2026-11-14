@@ -98,10 +98,23 @@ function Test-ScanPaused {
     catch { return $false }
 }
 
-function Get-ScanTask {
-    # 不查询系统计划任务：GUI 只认「暂停标记」，避免受运行环境影响
-    if (Test-ScanPaused) { return [pscustomobject]@{ State = 'Paused'; Paused = $true } }
-    return [pscustomobject]@{ State = 'Ready'; Paused = $false }
+function Get-TaskEnabled {
+    # 读任务 XML 里的 <Enabled>，避开中英文系统的文本差异；查不到返回 $null
+    try {
+        $xml = & schtasks.exe /Query /TN 'BackupLogAutoScan' /XML 2>$null
+        if ($LASTEXITCODE -ne 0 -or -not $xml) { return $null }
+        # 注意：XML 里没有 <Enabled> 节点时表示「已启用」；只有被停用才会写成 <Enabled>false</Enabled>
+        $text = ($xml -join "`r`n")
+        return (-not ($text -match '<Enabled>\s*false\s*</Enabled>'))
+    }
+    catch { return $null }
+}
+
+function Set-TaskEnabled {
+    param([bool]$Enabled)
+    $arg = if ($Enabled) { '/ENABLE' } else { '/DISABLE' }
+    & schtasks.exe /Change /TN 'BackupLogAutoScan' $arg 2>$null | Out-Null
+    return ($LASTEXITCODE -eq 0)
 }
 
 function Set-ScanTask {
@@ -190,8 +203,8 @@ if ($SelfTest) {
     Write-Host ('根目录：{0}' -f $target.Root)
     Write-Host ('条目：{0}' -f $(if ($state) { $state.Entries.Count } else { 0 }))
     Write-Host ('日志：{0}' -f (Get-LogPath -Config $cfg -Root $target.Root))
-    $task = Get-ScanTask
-    Write-Host ('计划任务：{0}' -f $(if ($task) { $task.State } else { '未安装' }))
+    $taskEnabled = Get-TaskEnabled
+    Write-Host ('计划任务：{0}' -f $(if ($null -eq $taskEnabled) { '未安装' } elseif ($taskEnabled) { '已启用' } else { '已停用' }))
     Write-Host ('开机自启：{0}' -f (Test-AutoStart))
     $icon = New-AppIcon
     Write-Host ('图标：{0}x{1}' -f $icon.Width, $icon.Height)
@@ -432,10 +445,10 @@ function Update-Status {
         else {
             $lines += '基线：尚未建立（请点一次「立即扫描」）'
         }
-        $task = Get-ScanTask
-        $lines += '自动扫描：' + $(if ($task) { '已启用' } else { '已暂停' })
+        $taskEnabled = Get-TaskEnabled
+        $lines += '自动扫描：' + $(if ($null -eq $taskEnabled) { '未知' } elseif ($taskEnabled) { '已启用' } else { '已停用' })
         $ui.InfoText.Text = ($lines -join "`n")
-        $ui.TaskBtn.Content = $(if ($task) { '暂停自动扫描' } else { '恢复自动扫描' })
+        $ui.TaskBtn.Content = $(if ($taskEnabled -eq $false) { '启用自动扫描' } else { '停用自动扫描' })
         $ui.TaskStatusText.Text = $(if ($task) { '计划任务运行中' } else { '计划任务已暂停' })
         Enable-Actions $true
     }
@@ -459,11 +472,15 @@ function Update-TaskText {
     $cfg = Get-AppConfig
     $minutes = 15
     if ($cfg.PSObject.Properties['scanIntervalMinutes']) { $minutes = [int]$cfg.scanIntervalMinutes }
-    if (Test-ScanPaused) {
-        $ui.TaskStatusText.Text = '自动扫描已暂停'
+    $enabled = Get-TaskEnabled
+    if ($null -eq $enabled) {
+        $ui.TaskStatusText.Text = '未检测到计划任务'
+    }
+    elseif ($enabled) {
+        $ui.TaskStatusText.Text = ('计划任务每 {0} 分钟静默扫描' -f $minutes)
     }
     else {
-        $ui.TaskStatusText.Text = ('计划任务每 {0} 分钟自动扫描' -f $minutes)
+        $ui.TaskStatusText.Text = '自动扫描已停用'
     }
 }
 
@@ -575,15 +592,22 @@ $ui.CommitBtn.Add_Click({
 
 $ui.TaskBtn.Add_Click({
         try {
-            $cfg = Get-AppConfig
-            $target = Resolve-BackupRoot -Config $cfg
-            if (Test-ScanPaused) {
-                $null = Set-PauseFlag -Config $cfg -Root $target.Root -Paused $false
-                $ui.StatusText.Text = '已恢复自动扫描'
+            $enabled = Get-TaskEnabled
+            if ($null -eq $enabled) {
+                # 查不到任务（没装或环境受限）：退回暂停标记
+                $cfg = Get-AppConfig
+                $target = Resolve-BackupRoot -Config $cfg
+                $paused = Test-ScanPaused
+                $null = Set-PauseFlag -Config $cfg -Root $target.Root -Paused (-not $paused)
+                $ui.StatusText.Text = $(if ($paused) { '已恢复自动扫描（暂停标记）' } else { '已暂停自动扫描（暂停标记）' })
+            }
+            elseif ($enabled) {
+                if (Set-TaskEnabled -Enabled $false) { $ui.StatusText.Text = '已停用自动扫描，计划任务不再唤醒' }
+                else { $ui.StatusText.Text = '停用失败：可能没有权限操作计划任务' }
             }
             else {
-                $null = Set-PauseFlag -Config $cfg -Root $target.Root -Paused $true
-                $ui.StatusText.Text = '已暂停自动扫描'
+                if (Set-TaskEnabled -Enabled $true) { $ui.StatusText.Text = '已启用自动扫描' }
+                else { $ui.StatusText.Text = '启用失败：可能没有权限操作计划任务' }
             }
             Update-Status
             Update-TaskText
@@ -646,11 +670,11 @@ $ui.IntervalBox.Text = $(if ($cfg0.PSObject.Properties['scanIntervalMinutes']) {
 $ui.ThresholdBox.Text = [string]$cfg0.maxChangePercent
 $ui.ArchiveBox.IsChecked = [bool]$cfg0.detectArchive
 $ui.AggregateBox.Text = $(if ($cfg0.PSObject.Properties['aggregateImages']) { $cfg0.aggregateImages } else { 10 })
-$ui.AutoScanBox.IsChecked = [bool](Get-ScanTask)
+$ui.AutoScanBox.IsChecked = ($true -eq (Get-TaskEnabled))
 $ui.AutoStartBox.IsChecked = Test-AutoStart
 if ($cfg0.pathStyle -eq 'drive') { $ui.PathStyleBox.SelectedIndex = 1 } else { $ui.PathStyleBox.SelectedIndex = 0 }
 
-Write-GuiLog ("启动：user=" + $env:USERNAME + " session=" + [System.Diagnostics.Process]::GetCurrentProcess().SessionId + " task=" + [string]([bool](Get-ScanTask)))
+Write-GuiLog ("启动：user=" + $env:USERNAME + " session=" + [System.Diagnostics.Process]::GetCurrentProcess().SessionId + " task=" + [string](Get-TaskEnabled))
 Update-Status
 Update-TaskText
 Refresh-LogTail
